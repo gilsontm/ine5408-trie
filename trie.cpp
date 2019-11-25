@@ -49,24 +49,25 @@ namespace structures {
      private:        
         class Node {
         public:
-            Node() {
-                Node* children_[26];
+            Node() { 
+                for (int i = 0; i < 26; i++) 
+                    children_[i] = nullptr;
                 position_ = 0u;
                 length_ = 0u;
             }
 
             ~Node() {
-                for (Node* node : children_)
-                    if (node != nullptr)
-                        delete node;
+                for (int i = 0; i < 26; i++)
+                    if (children_[i] != nullptr)
+                        delete children_[i];
             }
 
             void insert(const char* word, unsigned long position, unsigned long length) {
                 if (strlen(word) == 0) {
                     position_ = position;
-                    length_ = length;                  
+                    length_ = length;
                 } else {
-                    Node* child = children_[word[0] - 97];
+                    Node* child = children_[int(word[0]) - 97];
                     if (child == nullptr) {
                         child = new Node();
                         children_[int(word[0]) - 97] = child;
@@ -86,9 +87,9 @@ namespace structures {
             }
 
         private:
-            Node* children_[26];
             unsigned long position_{0u};
             unsigned long length_{0u};
+            Node* children_[26];
         };
         Node* root_;
     };

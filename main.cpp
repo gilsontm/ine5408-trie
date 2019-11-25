@@ -31,10 +31,8 @@ Trie* buildTrie(string filename) {
         for (char c : line) {
             if (c == '[') {
                 if (begin >= 0) {
-                    //cout << current << endl;   
-                    if (validateWord(word)) {
+                    if (validateWord(word))
                         trie->insert(word.c_str(), begin, current - begin - 1);
-                    } 
                 }
                 begin = current;
                 stream = "";
@@ -43,12 +41,12 @@ Trie* buildTrie(string filename) {
             } else {
                 stream += c;
             }
-            current++;       
+            current++;
         }
         current++;
     }
-    //cout << word << endl;
-    trie->insert(word.c_str(), begin, current - begin - 1);
+    if (validateWord(word))
+        trie->insert(word.c_str(), begin, current - begin - 1);
     file.close();
     return trie;
 }

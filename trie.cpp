@@ -1,60 +1,97 @@
-#include <cstdint>
 #include <stdexcept>  // C++ Exceptions
-
+#include <cstring>
 
 namespace structures {
 
-typedef struct data_s {
-    unsigned long position,
-    unsigned long length
-} data_t;
+    struct Data {
+        Data() {
+            position = length = 0;
+            found = false;
+        }
 
+        Data(unsigned long position_, unsigned long length_, bool found_) {
+            position = position_;
+            length = length_;
+            found = found_;
+        }
 
-class Trie {
- public:
-    Trie();
+        unsigned long position;
+        unsigned long length;
+        bool found;
+    };
 
-    ~Trie();
-
-    void insert();
-
-    data_t find(char* word);
-
- private:
-    class Node {
+    class Trie {
      public:
-        Node(const char letter):
-            letter_{letter}
-        {}
-
-        void position(unsigned long position){
-            position_{position}
+        Trie() {
+            root_ = nullptr;
         }
 
-        void length(unsigned long length) {
-            length_ = length;
+        ~Trie() {
+            if (root_ != nullptr)
+                delete root_;
         }
 
-        Node* children() {
-            return children_;
+        void insert(const char* word, unsigned long position, unsigned long length) {
+            if (strlen(word) == 0)
+                throw std::runtime_error("invalid string");
+
+            if (root_ == nullptr)
+                root_ = new Node();
+            root_->insert(word, position, length);
         }
 
-        unsigned long position() {
-            return position_;
+        Data find(const char* word) {
+            if (root_ == nullptr) 
+                return Data();
+            return root_->find(word);            
         }
 
-        unsigned long length() {
-            return length_;
-        }
+     private:        
+        class Node {
+        public:
+            Node() {
+                Node* children_[26];
+                position_ = 0u;
+                length_ = 0u;
+            }
 
-     private:
-        char letter_;
-        Node* children_[26];
-        unsigned long position_;
-        unsigned long length_;
-    }
+            ~Node() {
+                for (Node* node : children_)
+                    if (node != nullptr)
+                        delete node;
+            }
+
+            void insert(const char* word, unsigned long position, unsigned long length) {
+                if (strlen(word) == 0) {
+                    position_ = position;
+                    length_ = length;                  
+                } else {
+                    Node* child = children_[word[0] - 97];
+                    if (child == nullptr) {
+                        child = new Node();
+                        children_[int(word[0]) - 97] = child;
+                    }
+                    child->insert(word + 1, position, length);
+                }
+            }
+
+            Data find(const char* word) {
+                if (strlen(word) == 0)
+                    return Data(position_, length_, true);
+
+                Node* child = children_[int(word[0]) - 97];
+                if (child != nullptr)
+                    return child->find(word + 1);
+                return Data();
+            }
+
+        private:
+            Node* children_[26];
+            unsigned long position_{0u};
+            unsigned long length_{0u};
+        };
+        Node* root_;
+    };
+}  // namespace structures
 
 
-}
-
-}
